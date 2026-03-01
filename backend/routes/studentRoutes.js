@@ -109,7 +109,7 @@ router.get('/submissions/task/:taskId', async (req, res) => {
       student: req.user._id,
       task: req.params.taskId
     }).populate('task', 'title category difficulty points dueDate');
-    
+
     res.json({ success: true, data: submission });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -247,6 +247,58 @@ router.get('/badges', async (req, res) => {
   try {
     const badges = ['week-warrior', 'month-master', 'century-champion', 'year-legend'];
     res.json({ success: true, data: badges });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+
+router.get('/leaderboard/statistics', async (req, res) => {
+  try {
+    const totalUsers = await User.countDocuments({ role: 'student' });
+    const topScorer = await User.findOne({ role: 'student' }).sort({ 'gamification.totalPoints': -1 }).select('firstName lastName gamification');
+
+    res.json({
+      success: true,
+      data: {
+        totalStudents: totalUsers,
+        topScore: topScorer ? topScorer.gamification.totalPoints : 0
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+router.get('/progress', async (req, res) => {
+  try {
+    const studentId = req.user._id;
+    const period = req.query.period || 'monthly';
+    const dateLimit = new Date();
+
+    if (period === 'weekly') dateLimit.setDate(dateLimit.getDate() - 7);
+    else if (period === 'monthly') dateLimit.setMonth(dateLimit.getMonth() - 1);
+    else dateLimit.setFullYear(2000);
+
+    const progress = await Submission.aggregate([
+      { $match: { student: studentId, status: 'graded', submittedAt: { $gte: dateLimit } } },
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$submittedAt" } },
+          points: { $sum: '$pointsEarned' },
+          tasksCompleted: { $sum: 1 }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        progress: progress.map(p => ({ date: p._id, points: p.points, tasksCompleted: p.tasksCompleted })),
+        period
+      }
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

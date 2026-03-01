@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, Eye, Download, MessageSquare, Clock,CheckCircle,AlertCircle,FileText,User,Calendar,Award,Star} from 'lucide-react';
+import { Search, Filter, Eye, Download, MessageSquare, Clock, CheckCircle, AlertCircle, FileText, User, Calendar, Award, Star } from 'lucide-react';
 import { taskService } from '../../services/taskService';
 import toast from 'react-hot-toast';
 import SubmissionDetailModal from './SubmissionDetailModal';
@@ -40,201 +40,9 @@ const SubmissionReview = () => {
   const fetchSubmissions = async () => {
     try {
       setLoading(true);
-      
-      // Try to fetch from API, fall back to mock data
-      let fetchedSubmissions = [];
-      try {
-        const response = await taskService.getAllSubmissions();
-        fetchedSubmissions = response.submissions || response;
-      } catch (error) {
-        console.warn('API not available, using mock data');
-        // Mock data matching your Submission schema
-        fetchedSubmissions = [
-          {
-            _id: '1',
-            task: {
-              _id: 'task1',
-              title: 'JavaScript Fundamentals',
-              category: 'HTML/CSS/JS',
-              points: 100
-            },
-            student: {
-              _id: 'student1',
-              firstName: 'Alice',
-              lastName: 'Johnson',
-              email: 'alice.johnson@email.com'
-            },
-            textContent: 'I have completed all the JavaScript exercises. The functions handle edge cases and include proper error handling. I tested each function thoroughly and documented the approach in the comments.',
-            attachments: [
-              {
-                fileName: 'javascript-exercises.zip',
-                fileUrl: '/uploads/javascript-exercises.zip',
-                fileType: 'application/zip',
-                fileSize: 2048000
-              },
-              {
-                fileName: 'README.md',
-                fileUrl: '/uploads/README.md',
-                fileType: 'text/markdown',
-                fileSize: 1024
-              }
-            ],
-            status: 'submitted',
-            submittedAt: '2024-03-15T14:30:00Z',
-            grade: null,
-            isLate: false,
-            pointsEarned: 0,
-            createdAt: '2024-03-15T14:30:00Z',
-            updatedAt: '2024-03-15T14:30:00Z'
-          },
-          {
-            _id: '2',
-            task: {
-              _id: 'task2',
-              title: 'React Components',
-              category: 'React.js',
-              points: 150
-            },
-            student: {
-              _id: 'student2',
-              firstName: 'Bob',
-              lastName: 'Smith',
-              email: 'bob.smith@email.com'
-            },
-            textContent: 'Built a fully functional todo list with React hooks. Added features like filtering, local storage persistence, and drag-and-drop reordering.',
-            attachments: [
-              {
-                fileName: 'react-todo-app.zip',
-                fileUrl: '/uploads/react-todo-app.zip',
-                fileType: 'application/zip',
-                fileSize: 5120000
-              }
-            ],
-            status: 'graded',
-            submittedAt: '2024-03-14T16:45:00Z',
-            grade: {
-              score: 92,
-              feedback: 'Excellent work! Great implementation of React hooks and clean code structure. The additional features show initiative.',
-              gradedBy: 'teacher1',
-              gradedAt: '2024-03-16T10:30:00Z'
-            },
-            isLate: false,
-            pointsEarned: 138,
-            createdAt: '2024-03-14T16:45:00Z',
-            updatedAt: '2024-03-16T10:30:00Z'
-          },
-          {
-            _id: '3',
-            task: {
-              _id: 'task3',
-              title: 'Database Schema Design',
-              category: 'SQL',
-              points: 200
-            },
-            student: {
-              _id: 'student3',
-              firstName: 'Carol',
-              lastName: 'Davis',
-              email: 'carol.davis@email.com'
-            },
-            textContent: 'Created a comprehensive e-commerce database schema with proper normalization, indexes, and constraints. Included sample data and test queries.',
-            attachments: [
-              {
-                fileName: 'ecommerce-schema.sql',
-                fileUrl: '/uploads/ecommerce-schema.sql',
-                fileType: 'application/sql',
-                fileSize: 15360
-              },
-              {
-                fileName: 'erd-diagram.png',
-                fileUrl: '/uploads/erd-diagram.png',
-                fileType: 'image/png',
-                fileSize: 204800
-              }
-            ],
-            status: 'reviewed',
-            submittedAt: '2024-03-16T09:15:00Z',
-            grade: {
-              score: 0,
-              feedback: 'Schema design looks solid. Need to review the indexing strategy and add more comprehensive test data.',
-              gradedBy: 'teacher1',
-              gradedAt: '2024-03-17T11:20:00Z'
-            },
-            isLate: true,
-            pointsEarned: 0,
-            createdAt: '2024-03-16T09:15:00Z',
-            updatedAt: '2024-03-17T11:20:00Z'
-          },
-          {
-            _id: '4',
-            task: {
-              _id: 'task1',
-              title: 'JavaScript Fundamentals',
-              category: 'HTML/CSS/JS',
-              points: 100
-            },
-            student: {
-              _id: 'student4',
-              firstName: 'David',
-              lastName: 'Wilson',
-              email: 'david.wilson@email.com'
-            },
-            textContent: 'Completed the exercises but had some trouble with the advanced array methods. Would appreciate feedback on the implementation.',
-            attachments: [
-              {
-                fileName: 'js-solutions.js',
-                fileUrl: '/uploads/js-solutions.js',
-                fileType: 'text/javascript',
-                fileSize: 8192
-              }
-            ],
-            status: 'submitted',
-            submittedAt: '2024-03-18T22:45:00Z',
-            grade: null,
-            isLate: true,
-            pointsEarned: 0,
-            createdAt: '2024-03-18T22:45:00Z',
-            updatedAt: '2024-03-18T22:45:00Z'
-          },
-          {
-            _id: '5',
-            task: {
-              _id: 'task4',
-              title: 'MongoDB Operations',
-              category: 'MongoDB',
-              points: 160
-            },
-            student: {
-              _id: 'student1',
-              firstName: 'Alice',
-              lastName: 'Johnson',
-              email: 'alice.johnson@email.com'
-            },
-            textContent: 'Implemented all CRUD operations with proper error handling. Added aggregation pipelines for complex queries and optimized for performance.',
-            attachments: [
-              {
-                fileName: 'mongodb-operations.js',
-                fileUrl: '/uploads/mongodb-operations.js',
-                fileType: 'text/javascript',
-                fileSize: 12288
-              },
-              {
-                fileName: 'sample-data.json',
-                fileUrl: '/uploads/sample-data.json',
-                fileType: 'application/json',
-                fileSize: 4096
-              }
-            ],
-            status: 'submitted',
-            submittedAt: '2024-03-19T15:20:00Z',
-            grade: null,
-            isLate: false,
-            pointsEarned: 0,
-            createdAt: '2024-03-19T15:20:00Z',
-            updatedAt: '2024-03-19T15:20:00Z'
-          }
-        ];
-      }
+
+      const response = await taskService.getAllSubmissions();
+      const fetchedSubmissions = response.submissions || response || [];
 
       // Calculate statistics
       const submissionStats = fetchedSubmissions.reduce((acc, sub) => {
@@ -268,13 +76,8 @@ const SubmissionReview = () => {
       const response = await taskService.getTeacherTasks();
       setTasks(response.tasks || response || []);
     } catch (error) {
-      // Use mock tasks if API fails
-      setTasks([
-        { _id: 'task1', title: 'JavaScript Fundamentals' },
-        { _id: 'task2', title: 'React Components' },
-        { _id: 'task3', title: 'Database Schema Design' },
-        { _id: 'task4', title: 'MongoDB Operations' }
-      ]);
+      console.error('Failed to load tasks', error);
+      toast.error('Failed to load tasks');
     }
   };
 
@@ -360,7 +163,7 @@ const SubmissionReview = () => {
             ? { ...sub, ...updatedSubmission }
             : sub
         );
-      
+
         // Recalculate stats
         const updatedStats = updated.reduce((acc, sub) => {
           acc.total++;
@@ -377,9 +180,9 @@ const SubmissionReview = () => {
           }
           return acc;
         }, { total: 0, pending: 0, reviewed: 0, graded: 0 });
-      
+
         setStats(updatedStats);
-      
+
         return updated;
       });
 
@@ -397,13 +200,13 @@ const SubmissionReview = () => {
   const handleDownloadSubmission = async (submission) => {
     try {
       toast.loading('Preparing download...', { id: 'download' });
-    
+
       // Call backend
       const blobData = await taskService.downloadSubmissionFiles(submission._id);
-    
+
       // Generate a file name (could also zip multiple files on backend)
       const fileName = `${submission.student.firstName}_${submission.student.lastName}_${submission.task.title}.zip`;
-    
+
       // Create a link and trigger download
       const url = window.URL.createObjectURL(new Blob([blobData]));
       const link = document.createElement('a');
@@ -413,7 +216,7 @@ const SubmissionReview = () => {
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
-    
+
       toast.success('Download started!', { id: 'download' });
     } catch (error) {
       console.error('Download error:', error);
@@ -424,11 +227,11 @@ const SubmissionReview = () => {
 
   const getStatusBadge = (status, isLate = false) => {
     const baseClasses = "px-2 py-1 text-xs font-medium rounded-full";
-    
+
     if (isLate && status === 'submitted') {
       return <span className={`${baseClasses} bg-red-100 text-red-800`}>Late Submission</span>;
     }
-    
+
     switch (status) {
       case 'submitted':
         return <span className={`${baseClasses} bg-yellow-100 text-yellow-800`}>Pending Review</span>;
@@ -627,7 +430,7 @@ const SubmissionReview = () => {
                     </span>
                     {getStatusBadge(submission.status, submission.isLate)}
                   </div>
-                  
+
                   <div className="flex items-center space-x-4 text-sm text-gray-600 mb-3">
                     <div className="flex items-center">
                       <User className="h-4 w-4 mr-1" />
@@ -642,7 +445,7 @@ const SubmissionReview = () => {
                       <span>{submission.task.points} pts</span>
                     </div>
                   </div>
-                  
+
                   {submission.textContent && (
                     <div className="mb-3">
                       <p className="text-sm text-gray-700 line-clamp-2">
@@ -650,7 +453,7 @@ const SubmissionReview = () => {
                       </p>
                     </div>
                   )}
-                  
+
                   {submission.attachments.length > 0 && (
                     <div className="flex flex-wrap gap-2 mb-3">
                       {submission.attachments.map((file, index) => (
@@ -662,7 +465,7 @@ const SubmissionReview = () => {
                       ))}
                     </div>
                   )}
-                  
+
                   {submission.grade && (
                     <div className="flex items-center space-x-4 text-sm">
                       <div className="flex items-center text-green-600">
@@ -678,7 +481,7 @@ const SubmissionReview = () => {
                     </div>
                   )}
                 </div>
-                
+
                 <div className="flex items-center space-x-2 ml-4">
                   <button
                     onClick={() => handleViewSubmission(submission)}
@@ -687,7 +490,7 @@ const SubmissionReview = () => {
                   >
                     <Eye className="h-4 w-4" />
                   </button>
-                  
+
                   {submission.attachments.length > 0 && (
                     <button
                       onClick={() => handleDownloadSubmission(submission)}
@@ -697,7 +500,7 @@ const SubmissionReview = () => {
                       <Download className="h-4 w-4" />
                     </button>
                   )}
-                  
+
                   <button
                     onClick={() => handleGradeSubmission(submission)}
                     className="px-3 py-1 text-sm font-medium bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"

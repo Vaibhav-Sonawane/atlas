@@ -1,4 +1,5 @@
 import Task from "../models/Task.js";
+import User from "../models/User.js";
 import { body, validationResult } from "express-validator";
 
 // Validation rules (keep as is)
@@ -145,4 +146,30 @@ const getTaskById = async (req, res) => {
 };
 
 
-export { createTask, getAllTasks,updateTask, getTaskById, taskValidation };
+// Delete Task
+const deleteTask = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const task = await Task.findById(id);
+    if (!task) {
+      return res.status(404).json({ success: false, message: 'Task not found' });
+    }
+
+    // Only creator or admin can delete
+    if (task.createdBy.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+      return res.status(403).json({ success: false, message: 'Unauthorized to delete this task' });
+    }
+
+    await Task.findByIdAndDelete(id);
+
+    res.json({
+      success: true,
+      message: 'Task deleted successfully'
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to delete task', error: error.message });
+  }
+};
+
+export { createTask, getAllTasks, updateTask, deleteTask, getTaskById, taskValidation };

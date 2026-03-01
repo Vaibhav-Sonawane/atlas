@@ -30,22 +30,14 @@ const GlobalLeaderboard = () => {
       if (showRefreshing) setRefreshing(true);
       else setLoading(true);
 
-      try {
-        const leaderboard = await leaderboardService.getGlobalLeaderboard({
-          period: 'all-time',
-          limit: 10
-        });
-        setLeaderboardData(leaderboard.users || []);
-      } catch (error) {
-        console.warn('API not available, using mock data');
-        setLeaderboardData([
-          { id: 1, name: 'Alice Johnson', role: 'student', points: 2840, streak: 12, tasksCompleted: 28 },
-          { id: 2, name: 'Bob Smith', role: 'student', points: 2650, streak: 8, tasksCompleted: 25 },
-          { id: 3, name: 'Carol Davis', role: 'student', points: 2480, streak: 15, tasksCompleted: 24 },
-          { id: 4, name: 'David Wilson', role: 'student', points: 2340, streak: 5, tasksCompleted: 22 },
-          { id: 5, name: 'Emma Martinez', role: 'student', points: 2180, streak: 9, tasksCompleted: 21 }
-        ]);
-      }
+      const leaderboard = await leaderboardService.getGlobalLeaderboard({
+        period: 'all-time',
+        limit: 10
+      });
+      setLeaderboardData(leaderboard.users || []);
+    } catch (error) {
+      console.error('Failed to load leaderboard', error);
+      toast.error('Failed to load leaderboard data');
     } finally {
       setLoading(false);
       setRefreshing(false);

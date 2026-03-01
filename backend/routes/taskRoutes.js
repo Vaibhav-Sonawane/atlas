@@ -1,5 +1,5 @@
 import express from "express";
-import { createTask, getAllTasks, getTaskById,updateTask, taskValidation } from "../controllers/taskController.js";
+import { createTask, getAllTasks, getTaskById, updateTask, deleteTask, taskValidation } from "../controllers/taskController.js";
 import { authenticateToken } from "../middleware/authMiddleware.js";
 import { checkRole } from "../middleware/roleCheck.js";
 import User from "../models/User.js";
@@ -14,7 +14,7 @@ router.get('/', getAllTasks);
 
 //get all students
 router.get("/students", checkRole('teacher', 'admin'), async (req, res) => {
-    try {
+  try {
     // console.log("Fetching students...");
     const students = await User.find({ role: "student" });
     // console.log("Students found:", students.length);
@@ -36,5 +36,8 @@ router.post('/', checkRole('teacher', 'admin'), taskValidation, createTask);
 
 // Update task (teachers and admins only)
 router.put('/updatetask/:id', checkRole('teacher', 'admin'), taskValidation, updateTask);
+
+// Delete task (teachers and admins only)
+router.delete('/:id', checkRole('teacher', 'admin'), deleteTask);
 
 export default router;

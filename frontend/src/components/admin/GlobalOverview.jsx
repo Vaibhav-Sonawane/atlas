@@ -61,143 +61,20 @@ const GlobalOverview = () => {
       if (showRefreshing) setRefreshing(true);
       else setLoading(true);
 
-      // Try to fetch from API, fall back to mock data
-      try {
-        const [adminDashboard, globalLeaderboard] = await Promise.all([
-          taskService.getAdminDashboard(),
-          leaderboardService.getGlobalLeaderboard({ limit: 5 })
-        ]);
+      const [adminDashboard, globalLeaderboard] = await Promise.all([
+        taskService.getAdminDashboard(),
+        leaderboardService.getGlobalLeaderboard({ limit: 5 })
+      ]);
 
-        setOverview(adminDashboard.overview || {});
-        setRecentActivity(adminDashboard.recentActivity || []);
-        setTopPerformers(globalLeaderboard.users || []);
-      } catch (error) {
-        console.warn('API not available, using mock data');
-        
-        // Mock data for admin overview
-        setOverview({
-          users: {
-            total: 247,
-            students: 198,
-            teachers: 35,
-            admins: 14,
-            activeThisMonth: 186,
-            newThisWeek: 12
-          },
-          tasks: {
-            total: 156,
-            active: 89,
-            completed: 67,
-            categories: {
-              'MERN': 28,
-              'HTML/CSS/JS': 34,
-              'Python': 22,
-              'Java': 18,
-              'SQL': 16,
-              'MongoDB': 14,
-              'React.js': 24
-            }
-          },
-          submissions: {
-            total: 3847,
-            pending: 247,
-            graded: 3421,
-            averageGrade: 82.4
-          },
-          engagement: {
-            dailyActiveUsers: 145,
-            completionRate: 78.9,
-            averageTimeToComplete: 4.2
-          }
-        });
-
-        setRecentActivity([
-          {
-            id: 1,
-            type: 'user_registered',
-            user: 'Emma Wilson',
-            role: 'student',
-            timestamp: '2024-03-20T10:30:00Z',
-            details: 'New student registration'
-          },
-          {
-            id: 2,
-            type: 'task_created',
-            user: 'Dr. Sarah Johnson',
-            role: 'teacher',
-            timestamp: '2024-03-20T09:15:00Z',
-            details: 'Created "Advanced React Patterns" task'
-          },
-          {
-            id: 3,
-            type: 'submission_graded',
-            user: 'Prof. Michael Chen',
-            role: 'teacher',
-            timestamp: '2024-03-20T08:45:00Z',
-            details: 'Graded 15 submissions for JavaScript Fundamentals'
-          },
-          {
-            id: 4,
-            type: 'achievement_unlocked',
-            user: 'Alex Rivera',
-            role: 'student',
-            timestamp: '2024-03-19T16:20:00Z',
-            details: 'Unlocked "Week Warrior" badge (7-day streak)'
-          },
-          {
-            id: 5,
-            type: 'task_completed',
-            user: 'Jessica Park',
-            role: 'student',
-            timestamp: '2024-03-19T14:10:00Z',
-            details: 'Completed MongoDB Operations task (95% grade)'
-          }
-        ]);
-
-        setTopPerformers([
-          {
-            id: 1,
-            name: 'Alice Johnson',
-            email: 'alice.j@email.com',
-            role: 'student',
-            points: 2840,
-            tasksCompleted: 28,
-            streak: 12,
-            avgGrade: 94.2
-          },
-          {
-            id: 2,
-            name: 'Bob Smith',
-            email: 'bob.s@email.com',
-            role: 'student',
-            points: 2650,
-            tasksCompleted: 25,
-            streak: 8,
-            avgGrade: 91.8
-          },
-          {
-            id: 3,
-            name: 'Carol Davis',
-            email: 'carol.d@email.com',
-            role: 'student',
-            points: 2480,
-            tasksCompleted: 24,
-            streak: 15,
-            avgGrade: 89.7
-          }
-        ]);
-
-        // System performance stats (last 30 days)
-        setSystemStats([
-          { date: '2024-02-20', activeUsers: 134, submissions: 45, newUsers: 3 },
-          { date: '2024-02-21', activeUsers: 142, submissions: 52, newUsers: 5 },
-          { date: '2024-02-22', activeUsers: 128, submissions: 38, newUsers: 2 },
-          { date: '2024-02-23', activeUsers: 156, submissions: 61, newUsers: 4 },
-          { date: '2024-02-24', activeUsers: 149, submissions: 55, newUsers: 1 },
-          { date: '2024-02-25', activeUsers: 167, submissions: 68, newUsers: 6 },
-          { date: '2024-02-26', activeUsers: 145, submissions: 47, newUsers: 2 }
-        ]);
-      }
+      setOverview(adminDashboard.overview || {
+        users: { total: 0, students: 0, teachers: 0, admins: 0, activeThisMonth: 0, newThisWeek: 0 },
+        tasks: { total: 0, active: 0, completed: 0, categories: {} },
+        submissions: { total: 0, pending: 0, graded: 0, averageGrade: 0 },
+        engagement: { dailyActiveUsers: 0, completionRate: 0, averageTimeToComplete: 0 }
+      });
+      setRecentActivity(adminDashboard.recentActivity || []);
+      setTopPerformers(globalLeaderboard.users || []);
+      setSystemStats(adminDashboard.systemStats || []);
     } catch (error) {
       console.error('Error fetching overview data:', error);
       toast.error('Failed to load overview data');
@@ -458,9 +335,8 @@ const GlobalOverview = () => {
           <div className="space-y-4">
             {topPerformers.map((user, index) => (
               <div key={user.id} className="flex items-center space-x-3">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white ${
-                  index === 0 ? 'bg-yellow-500' : index === 1 ? 'bg-gray-400' : 'bg-orange-600'
-                }`}>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white ${index === 0 ? 'bg-yellow-500' : index === 1 ? 'bg-gray-400' : 'bg-orange-600'
+                  }`}>
                   #{index + 1}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -507,7 +383,7 @@ const GlobalOverview = () => {
           <h3 className="text-lg font-semibold text-gray-900">System Health</h3>
           <BarChart3 className="h-5 w-5 text-gray-400" />
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="text-center">
             <div className="flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mx-auto mb-3">
@@ -516,7 +392,7 @@ const GlobalOverview = () => {
             <h4 className="text-lg font-semibold text-gray-900">System Status</h4>
             <p className="text-sm text-green-600">All Systems Operational</p>
           </div>
-          
+
           <div className="text-center">
             <div className="flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mx-auto mb-3">
               <TrendingUp className="h-8 w-8 text-blue-600" />
@@ -524,7 +400,7 @@ const GlobalOverview = () => {
             <h4 className="text-lg font-semibold text-gray-900">Performance</h4>
             <p className="text-sm text-blue-600">Excellent (99.9% uptime)</p>
           </div>
-          
+
           <div className="text-center">
             <div className="flex items-center justify-center w-16 h-16 bg-purple-100 rounded-full mx-auto mb-3">
               <Activity className="h-8 w-8 text-purple-600" />

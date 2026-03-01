@@ -4,13 +4,13 @@ export const taskService = {
   // Student task operations
   getAllTasks: async (filters = {}) => {
     const params = new URLSearchParams();
-    
+
     if (filters.search) params.append('search', filters.search);
     if (filters.status && filters.status !== 'all') params.append('status', filters.status);
     if (filters.difficulty && filters.difficulty !== 'all') params.append('difficulty', filters.difficulty);
     if (filters.sortBy) params.append('sortBy', filters.sortBy);
     if (filters.category) params.append('category', filters.category);
-    
+
     const response = await apiClient.get(`/student/tasks?${params.toString()}`);
     return response.data.data || response.data;
   },
@@ -20,8 +20,8 @@ export const taskService = {
   //   return response.data.data?.task || response.data.task || response.data;
   // },
   getTaskById: async (id) => {
-  const response = await apiClient.get(`/tasks/${id}`);
-  return response.data.data?.task || null; // always task object or null
+    const response = await apiClient.get(`/tasks/${id}`);
+    return response.data.data?.task || null; // always task object or null
   },
 
   getTaskStatistics: async () => {
@@ -36,7 +36,7 @@ export const taskService = {
     if (submissionData.get('textContent')) {
       backendData.append('textContent', submissionData.get('textContent'));
     }
-    
+
     if (submissionData.get('comments')) {
       backendData.append('comments', submissionData.get('comments'));
     }
@@ -48,7 +48,7 @@ export const taskService = {
         files.push(value);
       }
     }
-    
+
     files.forEach((file, index) => {
       backendData.append('attachments', file);
     });
@@ -56,7 +56,7 @@ export const taskService = {
     // Set status to submitted
     backendData.append('status', 'submitted');
     backendData.append('submittedAt', new Date().toISOString());
-    
+
     const response = await apiClient.post(`student/submit/${taskId}`, backendData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
@@ -70,7 +70,8 @@ export const taskService = {
   },
 
   updateSubmission: async (taskId, submissionData) => {
-    const response = await apiClient.put(`/student/submissions/task/${taskId}`, submissionData, {
+    // Backend handles both create and update on POST /student/submit/:taskId
+    const response = await apiClient.post(`/student/submit/${taskId}`, submissionData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -97,7 +98,7 @@ export const taskService = {
       }
     };
 
-    const response = await apiClient.post('/teacher/tasks', backendData);
+    const response = await apiClient.post('/tasks', backendData);
     return response.data.data || response.data;
   },
 
@@ -107,17 +108,17 @@ export const taskService = {
   },
 
   deleteTask: async (id) => {
-    const response = await apiClient.delete(`/teacher/tasks/${id}`);
+    const response = await apiClient.delete(`/tasks/${id}`);
     return response.data.data || response.data;
   },
 
   getTeacherTasks: async (filters = {}) => {
     const params = new URLSearchParams();
-    
+
     if (filters.search) params.append('search', filters.search);
     if (filters.status) params.append('status', filters.status);
     if (filters.sortBy) params.append('sortBy', filters.sortBy);
-    
+
     const response = await apiClient.get(`/teacher/tasks?${params.toString()}`);
     return response.data.data || response.data;
   },
@@ -125,25 +126,26 @@ export const taskService = {
   // Submission review (Teacher) - Updated for your Submission model
   getTaskSubmissions: async (taskId, filters = {}) => {
     const params = new URLSearchParams();
-    
+
     if (filters.status) params.append('status', filters.status);
     if (filters.sortBy) params.append('sortBy', filters.sortBy);
-    
-    const response = await apiClient.get(`/teacher/tasks/${taskId}/submissions?${params.toString()}`);
+    params.append('taskId', taskId);
+
+    const response = await apiClient.get(`/teacher/submissions?${params.toString()}`);
     return response.data.data || response.data;
   },
 
-//   getAllSubmissions: async (filters = {}) => {
-//   const params = new URLSearchParams();
-  
-//   if (filters.status) params.append('status', filters.status);
-//   if (filters.taskId) params.append('taskId', filters.taskId);
-//   if (filters.studentId) params.append('studentId', filters.studentId); // optional
-//   if (filters.sortBy) params.append('sortBy', filters.sortBy);
+  //   getAllSubmissions: async (filters = {}) => {
+  //   const params = new URLSearchParams();
 
-//   const response = await apiClient.get(`/student/submissions?${params.toString()}`);
-//   return response.data.data || response.data;
-// },
+  //   if (filters.status) params.append('status', filters.status);
+  //   if (filters.taskId) params.append('taskId', filters.taskId);
+  //   if (filters.studentId) params.append('studentId', filters.studentId); // optional
+  //   if (filters.sortBy) params.append('sortBy', filters.sortBy);
+
+  //   const response = await apiClient.get(`/student/submissions?${params.toString()}`);
+  //   return response.data.data || response.data;
+  // },
 
   // Student
   getStudentSubmissions: async (taskId) => {
@@ -168,16 +170,16 @@ export const taskService = {
   },
 
   gradeSubmission: async (submissionId, gradeData) => {
-  const backendGradeData = {
-    grade: {
-      score: Number(gradeData.score),
-      feedback: gradeData.feedback || ''
-    }
-  };
+    const backendGradeData = {
+      grade: {
+        score: Number(gradeData.score),
+        feedback: gradeData.feedback || ''
+      }
+    };
 
-  const response = await apiClient.put(`/teacher/submissions/${submissionId}/grade`, backendGradeData);
-  return response.data.data || response.data;
-},
+    const response = await apiClient.put(`/teacher/submissions/${submissionId}/grade`, backendGradeData);
+    return response.data.data || response.data;
+  },
 
 
   downloadSubmissionFiles: async (submissionId) => {
@@ -192,7 +194,7 @@ export const taskService = {
     // Return the categories from your Task model enum
     return [
       'MERN',
-      'HTML/CSS/JS', 
+      'HTML/CSS/JS',
       'Python',
       'Java',
       'SQL',
@@ -220,7 +222,7 @@ export const taskService = {
   },
 
   getAdminDashboard: async () => {
-    const response = await apiClient.get('/admin/dashboard');
+    const response = await apiClient.get('/admin/stats');
     return response.data.data || response.data;
   },
 
@@ -232,11 +234,11 @@ export const taskService = {
 
   getSubmissionAnalytics: async (filters = {}) => {
     const params = new URLSearchParams();
-    
+
     if (filters.dateFrom) params.append('dateFrom', filters.dateFrom);
     if (filters.dateTo) params.append('dateTo', filters.dateTo);
     if (filters.taskId) params.append('taskId', filters.taskId);
-    
+
     const response = await apiClient.get(`/teacher/submissions/analytics?${params.toString()}`);
     return response.data.data || response.data;
   }

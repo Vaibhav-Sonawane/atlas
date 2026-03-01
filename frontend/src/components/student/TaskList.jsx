@@ -36,14 +36,8 @@ const TaskList = () => {
       if (showRefreshing) setRefreshing(true);
       else setLoading(true);
 
-      let fetchedTasks = [];
-      try {
-        const response = await taskService.getAllTasks();
-        fetchedTasks = response.tasks || response;
-      } catch (error) {
-        console.warn('API not available, using mock data');
-        fetchedTasks = [/* ... your mock tasks list ... */];
-      }
+      const response = await taskService.getAllTasks();
+      const fetchedTasks = response.tasks || response || [];
 
       // Calculate stats
       const now = new Date();
@@ -74,7 +68,7 @@ const TaskList = () => {
       setCategories(categories);
     } catch (error) {
       console.error('Error fetching categories:', error);
-      setCategories(['MERN','HTML/CSS/JS','Python','Java','SQL','MongoDB','React.js','Express.js/Node.js','Other']);
+      setCategories(['MERN', 'HTML/CSS/JS', 'Python', 'Java', 'SQL', 'MongoDB', 'React.js', 'Express.js/Node.js', 'Other']);
     }
   };
 
@@ -146,22 +140,22 @@ const TaskList = () => {
 
   const handleRefresh = () => fetchTasks(true);
   const clearAllFilters = () => { setSearchTerm(''); setStatusFilter('all'); setDifficultyFilter('all'); setCategoryFilter('all'); setSortBy('dueDate'); };
-  const getActiveFilterCount = () => ['searchTerm','statusFilter','difficultyFilter','categoryFilter'].filter(f => eval(f) !== 'all' && eval(f)).length;
+  const getActiveFilterCount = () => ['searchTerm', 'statusFilter', 'difficultyFilter', 'categoryFilter'].filter(f => eval(f) !== 'all' && eval(f)).length;
 
   if (loading) return (<div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div></div>);
 
   return (
     <div className="space-y-6">
       <div className="space-y-6">
-    {/* header, stats, filters ... */}
+        {/* header, stats, filters ... */}
 
-    {filteredTasks.length === 0 ? (<p className="text-gray-500 text-center">No tasks found</p>)
-    :(<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredTasks.map(task => (
-            <TaskCard key={task.id} task={task} />
-          ))}
-        </div>
-        )}
+        {filteredTasks.length === 0 ? (<p className="text-gray-500 text-center">No tasks found</p>)
+          : (<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredTasks.map(task => (
+              <TaskCard key={task.id} task={task} />
+            ))}
+          </div>
+          )}
       </div>
     </div>
   );

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Plus,Search,Filter,Edit,Trash2,Eye, Users, Calendar,Award,AlertCircle,CheckCircle,Clock,MoreVertical} from 'lucide-react';
+import { Plus, Search, Filter, Edit, Trash2, Eye, Users, Calendar, Award, AlertCircle, CheckCircle, Clock, MoreVertical } from 'lucide-react';
 import { taskService } from '../../services/taskService';
 import { useAuth } from '../../contexts/AuthContext';
 import toast from 'react-hot-toast';
 import TaskCreationModal from './TaskCreationModal';
-import TaskEditModal from './TaskEditModal'; 
+import TaskEditModal from './TaskEditModal';
 import { useNavigate } from 'react-router-dom';
 
 const TaskManager = () => {
@@ -23,7 +23,7 @@ const TaskManager = () => {
   const [selectedTasks, setSelectedTasks] = useState([]);
   const [showBulkActions, setShowBulkActions] = useState(false);
 
-  const categories = ['MERN','HTML/CSS/JS','Python','Java','SQL','MongoDB','React.js','Express.js/Node.js','C','C++','Other'];
+  const categories = ['MERN', 'HTML/CSS/JS', 'Python', 'Java', 'SQL', 'MongoDB', 'React.js', 'Express.js/Node.js', 'C', 'C++', 'Other'];
 
   useEffect(() => {
     fetchTasks();
@@ -36,86 +36,9 @@ const TaskManager = () => {
   const fetchTasks = async () => {
     try {
       setLoading(true);
-      
-      let fetchedTasks = [];
-      try {
-        const response = await taskService.getTeacherTasks();
-        fetchedTasks = response.tasks || response;
-      } catch (error) {
-        console.warn('API not available, using mock data');
-        fetchedTasks = [
-          {
-            _id: '1',
-            title: 'JavaScript Fundamentals',
-            description: 'Complete the basic JavaScript exercises covering variables, functions, and control structures.',
-            instructions: 'Download the starter code, complete all functions, run tests, and upload as ZIP.',
-            category: 'HTML/CSS/JS',
-            difficulty: 'easy',
-            points: 100,
-            dueDate: '2024-03-20T23:59:59Z',
-            createdBy: user?._id || 'current-user',
-            assignedTo: ['student1', 'student2', 'student3'],
-            isActive: true,
-            requirements: {
-              submissionType: 'both',
-              maxFileSize: 10,
-              allowedFileTypes: ['.js', '.zip', '.txt']
-            },
-            createdAt: '2024-03-10T10:00:00Z',
-            updatedAt: '2024-03-10T10:00:00Z',
-            // Additional teacher view data
-            submissionCount: 15,
-            pendingReviews: 5,
-            avgGrade: 85
-          },
-          {
-            _id: '2',
-            title: 'React Components Development',
-            description: 'Build a todo list component with state management and event handling.',
-            instructions: 'Create functional components, implement CRUD operations, style with CSS modules.',
-            category: 'React.js',
-            difficulty: 'medium',
-            points: 150,
-            dueDate: '2024-03-25T23:59:59Z',
-            createdBy: user?._id || 'current-user',
-            assignedTo: ['student1', 'student4', 'student5'],
-            isActive: true,
-            requirements: {
-              submissionType: 'file',
-              maxFileSize: 15,
-              allowedFileTypes: ['.zip', '.js', '.jsx']
-            },
-            createdAt: '2024-03-12T10:00:00Z',
-            updatedAt: '2024-03-12T10:00:00Z',
-            submissionCount: 8,
-            pendingReviews: 2,
-            avgGrade: 78
-          },
-          {
-            _id: '3',
-            title: 'Database Schema Design',
-            description: 'Design a relational database schema for an e-commerce application.',
-            instructions: 'Create ERD diagram, write SQL DDL scripts, document relationships.',
-            category: 'SQL',
-            difficulty: 'hard',
-            points: 200,
-            dueDate: '2024-03-15T23:59:59Z',
-            createdBy: user?._id || 'current-user',
-            assignedTo: ['student2', 'student3'],
-            isActive: false,
-            requirements: {
-              submissionType: 'both',
-              maxFileSize: 20,
-              allowedFileTypes: ['.sql', '.pdf', '.png']
-            },
-            createdAt: '2024-03-05T10:00:00Z',
-            updatedAt: '2024-03-05T10:00:00Z',
-            submissionCount: 12,
-            pendingReviews: 0,
-            avgGrade: 92
-          }
-        ];
-      }
+
+      const response = await taskService.getTeacherTasks();
+      const fetchedTasks = response.tasks || response || [];
 
       setTasks(fetchedTasks);
     } catch (error) {
@@ -272,8 +195,8 @@ const TaskManager = () => {
   };
 
   const handleSelectTask = (taskId) => {
-    setSelectedTasks(prev => 
-      prev.includes(taskId) 
+    setSelectedTasks(prev =>
+      prev.includes(taskId)
         ? prev.filter(id => id !== taskId)
         : [...prev, taskId]
     );
@@ -281,8 +204,8 @@ const TaskManager = () => {
 
   const handleSelectAll = () => {
     setSelectedTasks(
-      selectedTasks.length === filteredTasks.length 
-        ? [] 
+      selectedTasks.length === filteredTasks.length
+        ? []
         : filteredTasks.map(task => task._id)
     );
   };
@@ -290,15 +213,15 @@ const TaskManager = () => {
   const getStatusBadge = (task) => {
     const now = new Date();
     const dueDate = new Date(task.dueDate);
-    
+
     if (!task.isActive) {
       return <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">Inactive</span>;
     }
-    
+
     if (dueDate < now) {
       return <span className="px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full">Overdue</span>;
     }
-    
+
     return <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">Active</span>;
   };
 
@@ -467,7 +390,7 @@ const TaskManager = () => {
           <p className="text-sm text-gray-600">
             Showing {filteredTasks.length} of {tasks.length} tasks
           </p>
-          
+
           {selectedTasks.length > 0 && (
             <div className="flex items-center space-x-3">
               <span className="text-sm text-gray-600">
@@ -628,7 +551,7 @@ const TaskManager = () => {
         <TaskEditModal
           task={selectedTask}
           onSubmit={(updatedData) => {
-            handleEditTask(updatedData); 
+            handleEditTask(updatedData);
             handleTaskGraded(selectedTask._id); // update counts locally
           }}
           onCancel={() => {
